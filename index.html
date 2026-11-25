@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+<meta name="theme-color" content="#168BDF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Water Shield">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23168BDF'/%3E%3Cpath d='M12 4.5S6.5 10.5 6.5 14a5.5 5.5 0 0011 0C17.5 10.5 12 4.5 12 4.5z' fill='white'/%3E%3C/svg%3E">
+<title>Water Shield Sohna — Every Drop Accounted For</title>
+<meta name="description" content="Mobile demo dashboard for monitoring water supply, wastewater and treatment in Sohna, Haryana. All figures are Demo Data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#168BDF; --navy:#10243B; --cyan:#43C7E8; --bg:#F3F8FC; --white:#fff;
+  --green:#20A66A; --amber:#E9A23B; --red:#D9534F;
+  --muted:#5B6F85; --line:#E1EBF3;
+  --shadow:0 1px 2px rgba(16,36,59,.04),0 6px 20px rgba(16,36,59,.06);
+  --shadow-lg:0 4px 12px rgba(16,36,59,.08),0 16px 36px rgba(16,36,59,.14);
+  --radius:20px; --nav-h:68px; --top-h:58px; --app-w:480px;
+  --font:'Manrope','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:#E4EEF6}
+body{font-family:var(--font);background:#E4EEF6;color:var(--navy);line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;border-radius:10px}
+h1,h2,h3,h4{line-height:1.22;letter-spacing:-.015em}
+svg.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* Mobile-Only App Container */
+.app{
+  width:100%;
+  max-width:var(--app-w);
+  margin:0 auto;
+  min-height:100vh;
+  min-height:100dvh;
+  background:var(--bg);
+  position:relative;
+  overflow-x:clip;
+}
+@media (min-width:500px){
+  body{padding:0 12px}
+  .app{box-shadow:0 0 0 1px rgba(16,36,59,.07),0 20px 60px rgba(16,36,59,.14)}
+}
+.main{width:100%;min-width:0;padding-bottom:calc(var(--nav-h) + 26px + env(safe-area-inset-bottom))}
+
+/* Top App Bar */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  height:var(--top-h);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:0 16px;
+  background:rgba(243,248,252,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;min-width:0}
+.brand>div{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#fff;flex:none;box-shadow:0 4px 10px rgba(22,139,223,.3)}
+.logo svg{width:18px;height:18px;fill:#fff;stroke:none}
+.brand small{display:block;font-weight:600;font-size:.66rem;color:var(--muted);letter-spacing:.01em}
+.top-badges{display:flex;gap:6px;align-items:center;flex:none}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:.7rem;font-weight:700;white-space:nowrap;user-select:none}
+.badge.demo{background:#FFF4DE;color:#8A5A0B;border:1px solid #F4D9A4}
+.badge.role{background:#E6F4FD;color:#0D6BAE}
+.badge.ok{background:#E3F6EC;color:#13794B}
+.badge.watch{background:#FFF1D8;color:#92600D}
+.badge.attn{background:#FDE6E4;color:#A53834}
+
+/* Screen & Typography */
+.wrap{width:100%;padding:16px max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left))}
+.screen{display:none;width:100%;min-width:0}
+.screen.active{display:block;animation:screenIn .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.page-title{font-size:1.45rem;font-weight:800;margin-bottom:4px}
+.page-sub{color:var(--muted);font-size:.88rem;margin-bottom:16px;line-height:1.45}
+
+/* Bottom Tab Bar */
+.bottomnav{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;z-index:40;
+  width:100%;max-width:var(--app-w);
+  height:calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding:4px 6px env(safe-area-inset-bottom);
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-around;
+  box-shadow:0 -4px 20px rgba(16,36,59,.05);
+}
+.navbtn{
+  flex:1;min-width:0;height:56px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:.68rem;font-weight:700;color:var(--muted);
+  transition:color .2s,transform .15s;
+}
+.navbtn:active{transform:scale(.93)}
+.navbtn .nav-pill{
+  display:grid;place-items:center;
+  width:46px;height:28px;border-radius:14px;
+  transition:background .2s,color .2s;
+}
+.navbtn svg{width:20px;height:20px}
+.navbtn.active{color:var(--blue)}
+.navbtn.active .nav-pill{background:#E6F4FD;color:var(--blue)}
+
+/* Cards & Strict Width Containment */
+.card{
+  width:100%;min-width:0;
+  background:#fff;border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
+  border:1px solid rgba(225,235,243,.85);
+}
+.card h3{font-size:1.02rem;font-weight:800;margin-bottom:3px}
+.card .hint{color:var(--muted);font-size:.82rem;line-height:1.4}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card-head>div{min-width:0;flex:1}
+.enter{opacity:0;transform:translateY(12px);animation:enter .45s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i,0) * 55ms)}
+@keyframes enter{to{opacity:1;transform:none}}
+
+.stack{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;width:100%}
+.stack>*{min-width:0}
+
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.stat{padding:14px;position:relative;overflow:hidden;min-width:0}
+.stat:active{transform:scale(.98)}
+.stat .ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;margin-bottom:10px}
+.stat .ico svg{width:18px;height:18px}
+.stat .lbl{font-size:.75rem;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat .val{font-size:1.45rem;font-weight:800;margin-top:2px;letter-spacing:-.02em}
+.stat .val small{font-size:.75rem;font-weight:700;color:var(--muted);margin-left:3px}
+.stat .sub{font-size:.72rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Hero Card */
+.hero{
+  background:linear-gradient(145deg,#10243B 0%,#14507F 58%,#168BDF 100%);
+  color:#fff;border-radius:24px;padding:20px 18px;
+  position:relative;overflow:hidden;margin-bottom:14px;
+  box-shadow:var(--shadow-lg);
+}
+.hero::after{content:"";position:absolute;right:-50px;bottom:-70px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(67,199,232,.35),transparent 70%);pointer-events:none}
+.hero h1{font-size:1.65rem;font-weight:800;max-width:calc(100% - 76px);margin-top:8px;position:relative;z-index:1}
+.hero p{margin-top:8px;color:#D6ECFA;font-size:.86rem;line-height:1.45;position:relative;z-index:1}
+.hero .cta{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;position:relative;z-index:1}
+.drop-wrap{position:absolute;right:14px;top:16px;width:66px;z-index:1;animation:float 4.5s ease-in-out infinite;pointer-events:none}
+.drop-wrap svg{width:100%;filter:drop-shadow(0 8px 14px rgba(0,0,0,.25))}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:10px 14px;border-radius:14px;font-weight:700;font-size:.86rem;transition:transform .15s,background .2s;text-align:center}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--blue);color:#fff;box-shadow:0 4px 12px rgba(22,139,223,.3)}
+.btn.ghost{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.28)}
+.btn.light{background:#F0F6FB;color:var(--navy);border:1px solid var(--line)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:.78rem;border-radius:11px;flex:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+
+.demo-banner{display:flex;gap:10px;align-items:flex-start;background:#FFF8E8;border:1px solid #F4D9A4;color:#7A5209;border-radius:16px;padding:11px 13px;font-size:.8rem;line-height:1.4;margin-bottom:14px}
+
+/* Progress Bars & Rows (Strictly Contained) */
+.bar{width:100%;height:9px;border-radius:99px;background:#E8F1F8;overflow:hidden}
+.bar>i{display:block;height:100%;max-width:100%;border-radius:99px;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue));transition:width 1s cubic-bezier(.2,.7,.2,1)}
+.bar.green>i{background:linear-gradient(90deg,#5BD59B,var(--green))}
+.bar.amber>i{background:linear-gradient(90deg,#F4C173,var(--amber))}
+
+.bal-item{margin-top:14px;width:100%;min-width:0}
+.bal-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px;width:100%}
+.bal-lbl{font-size:.85rem;font-weight:700;color:var(--navy);min-width:0;flex:1}
+.bal-val{font-size:.82rem;font-weight:800;color:var(--navy);white-space:nowrap;flex:none}
+.bal-sub{font-size:.74rem;color:var(--muted);margin-top:4px;line-height:1.35}
+
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.85rem;margin-bottom:6px;width:100%;min-width:0}
+.row>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.row>span:last-child,.row>b:last-child{white-space:nowrap;flex:none}
+.row b{font-weight:800}
+.mt{margin-top:12px}.mt2{margin-top:16px}
+
+/* Mobile 3x2 Mini Journey Grid (Zero Horizontal Scroll) */
+.mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;width:100%}
+.mini-step{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;min-width:0}
+.mini-step .c{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#E6F4FD;color:var(--blue)}
+.mini-step .c svg{width:17px;height:17px}
+.mini-step span{font-size:.7rem;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mini-step small{font-size:.62rem;font-weight:800;color:var(--muted)}
+
+/* Ward Overview List Items */
+.w-ov-btn{display:block;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--line)}
+.w-ov-btn:last-child{border-bottom:0;padding-bottom:2px}
+.w-ov-btn:active{opacity:.75}
+
+/* Wards Screen */
+.search{
+  position:sticky;top:calc(var(--top-h) + 8px);z-index:25;
+  display:flex;align-items:center;gap:10px;
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:0 14px;box-shadow:var(--shadow);margin-bottom:12px;
+}
+.search input{flex:1;min-width:0;border:0;outline:0;background:none;padding:12px 0;font-size:16px;-webkit-appearance:none;appearance:none}
+.search:focus-within{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(67,199,232,.2)}
+.filters{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;scrollbar-width:none;-ms-overflow-style:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:36px;display:inline-flex;align-items:center;padding:6px 14px;border-radius:99px;font-size:.78rem;font-weight:700;background:#fff;border:1px solid var(--line);color:var(--muted);transition:.2s}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.wards{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;width:100%}
+.ward{text-align:left;width:100%;display:block;transition:transform .15s}
+.ward:active{transform:scale(.98)}
+.ward .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px}
+.ward h4{font-size:1rem;font-weight:800}
+.ward .area{font-size:.78rem;color:var(--muted)}
+.ward .nums{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;background:var(--bg);padding:10px 12px;border-radius:14px}
+.ward .nums div span{display:block;font-size:.7rem;color:var(--muted);font-weight:600}
+.ward .nums div b{font-size:1.08rem;font-weight:800}
+.empty{text-align:center;color:var(--muted);padding:32px 10px;font-size:.88rem}
+
+/* Mobile Bottom Sheet Modal */
+.overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(16,36,59,.55);
+  display:none;align-items:flex-end;justify-content:center;
+}
+.overlay.open{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{
+  background:#fff;width:100%;max-width:var(--app-w);
+  max-height:88dvh;overflow-y:auto;overscroll-behavior:contain;
+  border-radius:26px 26px 0 0;
+  padding:12px 18px calc(24px + env(safe-area-inset-bottom));
+  animation:sheet .3s cubic-bezier(.2,.8,.2,1);
+}
+.sheet::before{content:"";display:block;width:38px;height:4px;border-radius:4px;background:#D5E2EC;margin:0 auto 14px}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+.close{width:38px;height:38px;border-radius:12px;background:#EEF4F9;display:grid;place-items:center;flex:none}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.kv div{background:var(--bg);border-radius:14px;padding:11px;min-width:0}
+.kv span{display:block;font-size:.7rem;color:var(--muted);font-weight:600}
+.kv b{font-size:1.02rem;font-weight:800}
+.note{font-size:.8rem;line-height:1.45;color:var(--muted);background:var(--bg);border-left:4px solid var(--cyan);padding:10px 12px;border-radius:0 12px 12px 0;margin-top:12px}
+.drops{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.drops svg{width:17px;height:21px;animation:pop .35s backwards}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.tscroll{overflow-x:auto;width:100%}
+
+/* Journey Screen */
+.controls{
+  position:sticky;top:var(--top-h);z-index:25;
+  background:rgba(243,248,252,.94);backdrop-filter:blur(8px);
+  display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+  padding:8px 0 10px;margin:-4px 0 10px;
+}
+.controls .btn{flex:1 1 0;min-height:38px;padding:7px 8px;font-size:.8rem}
+.progress-text{width:100%;font-size:.75rem;color:var(--muted);font-weight:700;text-align:right;margin-top:2px}
+.flow{display:flex;flex-direction:column;align-items:stretch;gap:0;margin-bottom:14px}
+.stage{
+  display:flex;align-items:center;gap:12px;text-align:left;
+  background:#fff;border:2px solid var(--line);border-radius:18px;
+  padding:13px 14px;box-shadow:var(--shadow);
+  transition:border-color .25s,box-shadow .25s,background .25s;
+  position:relative;scroll-margin-top:calc(var(--top-h) + 86px);
+}
+.stage:active{transform:scale(.99)}
+.stage .sic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#E6F4FD;color:var(--blue);flex:none;transition:.25s}
+.stage .sic svg{width:22px;height:22px}
+.stage b{display:block;font-size:.92rem}
+.stage small{color:var(--muted);font-size:.75rem;font-weight:600}
+.stage .num{position:absolute;top:-9px;left:14px;background:var(--navy);color:#fff;font-size:.64rem;font-weight:800;padding:2px 8px;border-radius:99px}
+.stage.active{border-color:var(--blue);background:linear-gradient(180deg,#fff,#EEF8FE);box-shadow:0 0 0 4px rgba(67,199,232,.22),var(--shadow-lg)}
+.stage.active .sic{background:var(--blue);color:#fff;animation:pulse 1.6s infinite}
+.stage.done .sic{background:#DDF3FA;color:#0E8CAE}
+.stage.treated.active{border-color:var(--green);box-shadow:0 0 0 4px rgba(32,166,106,.2),var(--shadow-lg)}
+.stage.treated.active .sic{background:var(--green)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.pipe{position:relative;width:8px;height:30px;margin:0 auto;background:#D6E8F4;border-radius:8px;overflow:hidden;flex:none}
+.pipe.flowing{background:#BFE3F5}
+.pipe.waste{background:#E3DDD0}
+.pipe.waste.flowing{background:#D9CFB8}
+.pipe i{position:absolute;left:50%;top:-8px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);opacity:0}
+.pipe.waste i{background:#8E8468;box-shadow:none}
+.pipe.flowing i{opacity:1;animation:down 1.4s linear infinite}
+.pipe.flowing i:nth-child(2){animation-delay:.45s}
+.pipe.flowing i:nth-child(3){animation-delay:.9s}
+@keyframes down{from{top:-8px}to{top:100%}}
+.flow.paused .pipe i{animation-play-state:paused}
+.panel .tag{display:inline-block;font-size:.68rem;font-weight:800;color:var(--blue);background:#E6F4FD;padding:3px 10px;border-radius:99px;margin-bottom:8px}
+.panel h3{font-size:1.18rem}
+.panel p{color:var(--muted);margin-top:6px;font-size:.86rem;line-height:1.45}
+.panel.swap{animation:swap .35s}
+@keyframes swap{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
+.outs{display:grid;gap:8px;margin-top:10px}
+.out{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:12px;font-size:.82rem;font-weight:700}
+.out.g{background:#E3F6EC;color:#13794B}.out.b{background:#E6F4FD;color:#0D6BAE}.out.a{background:#FFF1D8;color:#92600D}
+
+/* STP Screen */
+.steps{display:grid;gap:10px}
+.step{display:flex;gap:10px;align-items:center;padding:11px;border-radius:15px;background:var(--bg);min-width:0}
+.step .n{width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.8rem;flex:none}
+.step b{font-size:.88rem}.step small{display:block;color:var(--muted);font-size:.74rem}
+.step .bar{margin-top:6px}
+.donut{width:142px;height:142px;border-radius:50%;margin:10px auto;position:relative;display:grid;place-items:center}
+.donut::after{content:"";position:absolute;inset:25px;background:#fff;border-radius:50%}
+.donut span{position:relative;z-index:1;text-align:center;font-weight:800;font-size:1.1rem}
+.donut span small{display:block;font-size:.66rem;color:var(--muted);font-weight:600}
+.legend{display:grid;gap:7px;margin-top:10px;font-size:.8rem}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend i{width:10px;height:10px;border-radius:3px;flex:none}
+.legend b{margin-left:auto;white-space:nowrap}
+.chart{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:10px;border-bottom:1px solid var(--line)}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.col .pair{display:flex;align-items:flex-end;gap:3px;height:100%;width:100%;justify-content:center}
+.col .pair i{width:42%;max-width:22px;border-radius:6px 6px 0 0;height:0;transition:height .9s cubic-bezier(.2,.7,.2,1)}
+.xlab{display:flex;gap:8px}
+.xlab span{flex:1;text-align:center;font-size:.7rem;color:var(--muted);font-weight:700;padding-top:6px}
+
+/* Profile & Reports */
+.seg{display:flex;width:100%;background:#E8F1F8;border-radius:14px;padding:4px;gap:4px;margin:8px 0 4px}
+.seg button{flex:1;min-height:38px;padding:8px 12px;border-radius:11px;font-weight:700;font-size:.84rem;color:var(--muted);transition:.2s}
+.seg button.active{background:#fff;color:var(--navy);box-shadow:var(--shadow)}
+.avatar{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#fff;font-weight:800;font-size:1.15rem;flex:none}
+.prof{display:flex;gap:12px;align-items:center}
+label{display:block;font-size:.78rem;font-weight:700;margin:12px 0 5px}
+.field{width:100%;padding:11px 13px;border-radius:13px;border:1px solid var(--line);background:#fff;outline:0;font-size:16px;transition:.2s}
+.field:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(67,199,232,.2)}
+.field.err{border-color:var(--red)}
+.errmsg{color:var(--red);font-size:.75rem;margin-top:4px;display:none}
+.errmsg.show{display:block}
+.confirm{display:none;background:#E3F6EC;border:1px solid #AEE3C9;color:#0F6B43;border-radius:15px;padding:12px;margin-top:12px;font-size:.84rem}
+.confirm.show{display:block;animation:enter .35s forwards}
+.rep{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.rep:last-child{border:0;padding-bottom:2px}
+.rep .ri{width:38px;height:38px;border-radius:12px;background:#E6F4FD;color:var(--blue);display:grid;place-items:center;flex:none}
+.rep div{flex:1;min-width:0}
+.rep b{font-size:.88rem;display:block}.rep small{display:block;color:var(--muted);font-size:.74rem}
+.cmp{padding:11px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+.cmp:last-child{border:0}
+.cmp .meta{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px;flex-wrap:wrap}
+.cmp p{color:var(--muted);margin-top:3px}
+
+/* Toast Notification */
+.toast{
+  position:fixed;left:50%;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
+  transform:translate(-50%,16px);
+  background:var(--navy);color:#fff;
+  padding:10px 16px;border-radius:14px;
+  font-size:.82rem;font-weight:600;
+  opacity:0;pointer-events:none;transition:.25s;z-index:200;
+  max-width:calc(var(--app-w) - 32px);width:max-content;text-align:center;
+  box-shadow:var(--shadow-lg);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:360px){
+  .badge.role{display:none}
+  .hero h1{font-size:1.45rem}
+  .stat .val{font-size:1.3rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  .enter{opacity:1;transform:none}
+  .drop-wrap{animation:none}
+  .pipe.flowing i{opacity:1}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="main">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5C12 2.5 5 10 5 14.5a7 7 0 0014 0C19 10 12 2.5 12 2.5z"/></svg></div>
+        <div>Water Shield Sohna<small>Every Drop Accounted For</small></div>
+      </div>
+      <div class="top-badges">
+        <span class="badge demo" title="All numbers are fictional">● Demo</span>
+        <span class="badge role" id="roleBadge">Citizen</span>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- HOME -->
+      <section class="screen active" id="screen-home" aria-label="Home dashboard">
+        <div class="hero enter">
+          <div class="drop-wrap" aria-hidden="true">
+            <svg viewBox="0 0 100 130"><defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FE3F5"/><stop offset="1" stop-color="#168BDF"/></linearGradient></defs><path d="M50 6C50 6 10 58 10 85a40 40 0 0080 0C90 58 50 6 50 6z" fill="url(#dg)"/><path d="M30 80a20 20 0 0010 22" stroke="#fff" stroke-opacity=".7" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+          </div>
+          <span class="badge demo">● Demo Data</span>
+          <h1>Every Drop Accounted For.</h1>
+          <p>Follow how water travels from source to Sohna's wards, how wastewater is collected, and how it is treated and reused.</p>
+          <div class="cta">
+            <button class="btn primary" data-go="journey">Water journey</button>
+            <button class="btn ghost" data-go="wards">View wards</button>
+          </div>
+        </div>
+
+        <div class="demo-banner enter" style="--i:1">
+          <span>⚠️</span>
+          <span><b>Demo Data.</b> Every figure in this app is fictional for demonstration and does not represent real measurements from Sohna.</span>
+        </div>
+
+        <div class="stats" id="homeStats"></div>
+
+        <div class="stack mt2">
+          <div class="card enter" style="--i:5">
+            <h3>Where the water went</h3>
+            <p class="hint">Daily water balance (demo). Gaps are shown openly.</p>
+            <div id="balance"></div>
+          </div>
+
+          <div class="card enter" style="--i:6">
+            <div class="card-head">
+              <div>
+                <h3>Water journey preview</h3>
+                <p class="hint">Source to reuse in six stages.</p>
+              </div>
+              <button class="btn light sm" data-go="journey">Open</button>
+            </div>
+            <div class="mini-grid" id="miniJourney" role="img" aria-label="Six stages from water source to reuse"></div>
+          </div>
+
+          <div class="card enter" style="--i:7">
+            <div class="card-head">
+              <div>
+                <h3>Ward overview</h3>
+                <p class="hint">Wastewater collected vs. water supplied.</p>
+              </div>
+              <button class="btn light sm" data-go="wards">All wards</button>
+            </div>
+            <div class="mt" id="wardOverview"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WARDS -->
+      <section class="screen" id="screen-wards" aria-label="Ward monitoring">
+        <h2 class="page-title">Ward Monitoring</h2>
+        <p class="page-sub">Water supplied and wastewater collected in each demo ward. Tap a ward for details.</p>
+        <div class="search"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="wardSearch" type="search" placeholder="Search wards or areas…" aria-label="Search wards"></div>
+        <div class="filters" id="wardFilters" role="group" aria-label="Filter by status"></div>
+        <div class="wards" id="wardList"></div>
+        <div class="empty" id="wardEmpty" hidden>No wards match your search.</div>
+      </section>
+
+      <!-- JOURNEY -->
+      <section class="screen" id="screen-journey" aria-label="Water journey">
+        <h2 class="page-title">The Water Journey</h2>
+        <p class="page-sub">Follow one day of demo water from source to reuse. Tap any stage, or press Play.</p>
+        <div class="controls">
+          <button class="btn primary sm" id="jPlay"><svg class="ic" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="currentColor"/></svg>Play</button>
+          <button class="btn light sm" id="jPause"><svg class="ic" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16"/></svg>Pause</button>
+          <button class="btn light sm" id="jReplay"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8M3 3v5h5"/></svg>Replay</button>
+          <span class="progress-text" id="jProg">Stage 1 of 6</span>
+        </div>
+        <div class="flow" id="flow" role="group" aria-label="Water journey stages"></div>
+        <div class="card panel" id="jPanel" aria-live="polite"></div>
+        <div class="card mt">
+          <h3>How to read a droplet</h3>
+          <p class="hint" style="margin-top:4px">One droplet = 1 US gallon (3.785 litres). Large volumes are shown as grouped droplets (1 group = 100,000 gallons = 378,500 litres). Open any ward to view its droplets.</p>
+        </div>
+      </section>
+
+      <!-- STP -->
+      <section class="screen" id="screen-stp" aria-label="STP monitoring">
+        <h2 class="page-title">STP Monitoring</h2>
+        <p class="page-sub">Sohna Sewage Treatment Plant daily demo readings.</p>
+        <div class="stats" id="stpStats"></div>
+        <div class="stack mt2">
+          <div class="card enter">
+            <h3>Where the wastewater ended up</h3>
+            <p class="hint">Treated water, residual waste and unexplained difference shown separately.</p>
+            <div class="donut" id="stpDonut"><span id="stpDonutLbl"></span></div>
+            <div class="legend" id="stpLegend"></div>
+            <div class="note">The <b>unexplained difference</b> is not residual waste. It is the gap left after measuring inflow, treated output and residual waste (meter error, evaporation or timing).</div>
+          </div>
+          <div class="card enter" style="--i:1">
+            <h3>Treatment process</h3>
+            <p class="hint">Typical stages with demo removal efficiency.</p>
+            <div class="steps mt" id="stpSteps"></div>
+          </div>
+          <div class="card enter" style="--i:2">
+            <h3>Received vs treated (6 months)</h3>
+            <p class="hint">MLD (million litres per day), monthly average.</p>
+            <div class="chart mt" id="stpChart"></div>
+            <div class="xlab" id="stpX"></div>
+            <div class="legend" style="grid-auto-flow:column;justify-content:start;gap:16px"><div><i style="background:var(--cyan)"></i>Received</div><div><i style="background:var(--green)"></i>Treated</div></div>
+          </div>
+          <div class="card enter" style="--i:3">
+            <h3>Reuse of treated water</h3>
+            <p class="hint">Where reused water goes (demo).</p>
+            <div id="reuseBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="screen" id="screen-profile" aria-label="Profile and reports">
+        <h2 class="page-title">Profile &amp; Reports</h2>
+        <p class="page-sub">Switch demo roles, download reports, or log a demo complaint.</p>
+        <div class="stack">
+          <div class="card enter">
+            <div class="prof"><div class="avatar" id="avatar">DC</div><div><h3 id="profName"></h3><p class="hint" id="profMeta"></p></div></div>
+            <label style="margin-top:14px">Demo role</label>
+            <div class="seg" role="group" aria-label="Switch demo role">
+              <button data-role="Citizen" class="active">Citizen</button>
+              <button data-role="Municipality">Municipality</button>
+            </div>
+            <p class="hint mt" id="roleHint"></p>
+          </div>
+
+          <div class="card enter" style="--i:1">
+            <h3>Water reports</h3>
+            <p class="hint">View tables or download as CSV.</p>
+            <div class="mt" id="reportList"></div>
+          </div>
+
+          <div class="card enter" style="--i:2">
+            <h3>Submit a complaint</h3>
+            <div class="demo-banner mt"><span>ℹ️</span><span><b>Demo only.</b> Complaints stay in this browser and are <b>not sent to any authority</b>.</span></div>
+            <form id="cForm" novalidate>
+              <label for="cName">Your name</label>
+              <input class="field" id="cName" placeholder="e.g. Demo Citizen" maxlength="60">
+              <div class="errmsg" id="eName">Please enter your name.</div>
+              <label for="cWard">Ward</label>
+              <select class="field" id="cWard"></select>
+              <label for="cCat">Issue type</label>
+              <select class="field" id="cCat">
+                <option>Low water pressure</option><option>No supply</option><option>Pipe leakage</option><option>Sewage overflow</option><option>Water quality concern</option><option>Other</option>
+              </select>
+              <label for="cDesc">Describe the issue</label>
+              <textarea class="field" id="cDesc" rows="3" placeholder="What did you notice, and where?" maxlength="400"></textarea>
+              <div class="errmsg" id="eDesc">Please write at least 10 characters.</div>
+              <button class="btn primary mt" type="submit" style="width:100%">Submit demo complaint</button>
+            </form>
+            <div class="confirm" id="cConfirm" role="status"></div>
+          </div>
+
+          <div class="card enter" style="--i:3">
+            <div class="card-head" style="align-items:center">
+              <h3 id="cTitle">Your complaints</h3>
+              <button class="btn light sm" id="cClear">Clear all</button>
+            </div>
+            <div class="mt" id="cList"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottomnav" id="bottomNav" aria-label="Main navigation"></nav>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Helpers ---------- */
+var $ = function(s,r){return (r||document).querySelector(s)};
+var $$ = function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var L_PER_GAL = 3.785;
+function mld(l){return (l/1e6).toFixed(1)}
+function fmtL(l){return Math.round(l).toLocaleString('en-IN')}
+function gal(l){return l/L_PER_GAL}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function toast(msg){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('show')},2600)}
+
+var ICONS = {
+  home:'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
+  wards:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  journey:'<circle cx="5" cy="6" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 6H15a3 3 0 010 6H9a3 3 0 000 6h7.5"/>',
+  stp:'<path d="M12 2.5S5 10 5 14.5a7 7 0 0014 0C19 10 12 2.5 12 2.5z"/><path d="M9 15a3 3 0 003 3"/>',
+  profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',
+  source:'<path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0M12 3v5"/>',
+  reservoir:'<path d="M4 9h16v11H4zM4 9l8-5 8 5M8 13v4M12 13v4M16 13v4"/>',
+  city:'<path d="M3 21V9l6-3v15M9 21V4l8 3v14M21 21H3M13 11h1M13 15h1M5 13h1M5 17h1"/>',
+  waste:'<path d="M4 12h6a4 4 0 014 4v5M20 12h-2M4 8h10M18 5v7"/><circle cx="18" cy="16" r="3"/>',
+  plant:'<rect x="3" y="12" width="18" height="8" rx="2"/><path d="M7 12V8M12 12V5M17 12V8M7 16h2M12 16h2M17 16h2"/>',
+  reuse:'<path d="M17 2l4 4-4 4M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 01-3 3H3"/>',
+  file:'<path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9zM14 3v6h6M8 13h8M8 17h8"/>',
+  x:'<path d="M18 6L6 18M6 6l12 12"/>'
+};
+function ic(n){return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+(ICONS[n]||'')+'</svg>'}
+var DROP_SVG='<svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 1C10 1 2 10 2 15a8 8 0 0016 0C18 10 10 1 10 1z" fill="#43C7E8"/><path d="M6 15a4 4 0 003 4" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+
+/* ---------- Demo data (all in litres) ---------- */
+var D = {
+  received: 42000000,
+  distributed: 36500000,
+  collected: 24800000,
+  treated: 22900000,
+  residual: 1400000,
+  unexplained: 500000,
+  reused: 9600000,
+  reuseSplit:[['Horticulture & parks',3400000],['Construction',2700000],['Industrial cooling',2100000],['Road cleaning',1400000]],
+  months:['Jun','Jul','Aug','Sep','Oct','Nov'],
+  recv:[23.9,24.3,25.6,25.1,24.5,24.8],
+  trt:[22.1,22.6,23.8,23.3,22.6,22.9]
+};
+D.notDelivered = D.received - D.distributed;
+D.notCollected = D.distributed - D.collected;
+D.discharged = D.treated - D.reused;
+
+var WARDS = [
+  {id:1,name:'Ward 1',area:'Old Sohna',supplied:5800000,waste:4200000,note:'Older town area with mixed piped and on-site sewage connections.'},
+  {id:2,name:'Ward 2',area:'Bus Stand Road',supplied:4900000,waste:3100000,note:'Some lanes still rely on septic tanks; sewer extension is planned (demo).'},
+  {id:3,name:'Ward 3',area:'Sector 4 Residential',supplied:5200000,waste:3600000,note:'Well covered by sewer network. Evening peak demand is high.'},
+  {id:4,name:'Ward 4',area:'Hill View Colony',supplied:4100000,waste:2400000,note:'Higher share of water used for gardens and vehicle washing (demo assumption).'},
+  {id:5,name:'Ward 5',area:'Outer Villages Edge',supplied:3600000,waste:1900000,note:'Low collection share. Many homes are not yet connected to the sewer (demo).'},
+  {id:6,name:'Ward 6',area:'Market Chowk',supplied:4400000,waste:3200000,note:'Commercial area. Collection is steady through the day.'},
+  {id:7,name:'Ward 7',area:'Lake Road',supplied:3900000,waste:2800000,note:'Newer pipelines installed recently (demo).'},
+  {id:8,name:'Ward 8',area:'Industrial Link',supplied:4600000,waste:3600000,note:'Mix of homes and small units. Some industrial water is reused on site.'}
+];
+WARDS.forEach(function(w){
+  w.ratio = w.waste/w.supplied;
+  w.status = w.ratio>=0.68?'ok':(w.ratio>=0.58?'watch':'attn');
+});
+var STATUS_LBL={ok:'Normal',watch:'Watch',attn:'Needs attention'};
+
+/* ---------- Navigation ---------- */
+var SCREENS=[['home','Home'],['wards','Wards'],['journey','Journey'],['stp','STP'],['profile','Profile']];
+var current='home';
+function buildNav(){
+  $('#bottomNav').innerHTML=SCREENS.map(function(s){
+    return '<button class="navbtn" data-nav="'+s[0]+'" aria-label="'+s[1]+'"><span class="nav-pill">'+ic(s[0])+'</span><span>'+s[1]+'</span></button>';
+  }).join('');
+}
+function go(name){
+  if(!document.getElementById('screen-'+name))return;
+  if(current==='journey'&&name!=='journey'){jPause()}
+  current=name;
+  $$('.screen').forEach(function(s){s.classList.toggle('active',s.id==='screen-'+name)});
+  $$('[data-nav]').forEach(function(b){var a=b.getAttribute('data-nav')===name;b.classList.toggle('active',a);if(a)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  try{history.replaceState(null,'','#'+name)}catch(e){}
+  if(name==='home')animateHome();
+  if(name==='stp')animateSTP();
+  if(name==='journey')renderJourney();
+}
+document.addEventListener('click',function(e){
+  var n=e.target.closest('[data-nav]');if(n){go(n.getAttribute('data-nav'));return}
+  var g=e.target.closest('[data-go]');if(g){go(g.getAttribute('data-go'))}
+});
+
+/* ---------- Count up ---------- */
+function countUp(el,to,dec){
+  if(reduce){el.textContent=to.toFixed(dec);return}
+  var start=null,dur=1000;
+  function step(t){if(!start)start=t;var p=Math.min((t-start)/dur,1),e=1-Math.pow(1-p,3);el.textContent=(to*e).toFixed(dec);if(p<1)requestAnimationFrame(step)}
+  requestAnimationFrame(step);
+}
+function statCard(icon,color,bg,label,litres,sub,i){
+  return '<div class="card stat enter" style="--i:'+i+'"><div class="ico" style="background:'+bg+';color:'+color+'">'+ic(icon)+'</div><div class="lbl">'+label+'</div><div class="val"><span data-count="'+(litres/1e6)+'">0.0</span><small>MLD</small></div><div class="sub">'+sub+'</div></div>';
+}
+function runCounts(root){$$('[data-count]',root).forEach(function(el){countUp(el,parseFloat(el.getAttribute('data-count')),1)})}
+
+/* ---------- Home ---------- */
+function balRow(label,sub,l,total,cls){
+  var pct=Math.round(l/total*100);
+  return '<div class="bal-item"><div class="bal-top"><span class="bal-lbl">'+label+'</span><span class="bal-val">'+mld(l)+' MLD · '+pct+'%</span></div><div class="bar '+(cls||'')+'"><i data-w="'+pct+'"></i></div>'+(sub?'<div class="bal-sub">'+sub+'</div>':'')+'</div>';
+}
+function buildHome(){
+  $('#homeStats').innerHTML=
+    statCard('source','#168BDF','#E6F4FD','Water received',D.received,'At source intake',0)+
+    statCard('city','#0E8CAE','#DDF3FA','Distributed',D.distributed,'To 8 city wards',1)+
+    statCard('waste','#B87A15','#FFF1D8','Collected',D.collected,'From ward sewers',2)+
+    statCard('plant','#13794B','#E3F6EC','Water treated',D.treated,'Output of STP',3);
+
+  $('#balance').innerHTML=
+    '<div class="hint" style="margin-top:10px;font-weight:700;color:var(--navy)">Supply side (% of water received)</div>'+
+    balRow('Delivered to wards','',D.distributed,D.received)+
+    balRow('Not delivered','Leakage, storage change & unmetered use',D.notDelivered,D.received,'amber')+
+    '<div class="hint" style="margin-top:18px;font-weight:700;color:var(--navy)">Wastewater side (% of water delivered)</div>'+
+    balRow('Wastewater collected','',D.collected,D.distributed)+
+    balRow('Not collected','Garden use, evaporation, septic tanks & unsewered homes',D.notCollected,D.distributed,'amber')+
+    '<div class="note">Water supplied does not equal wastewater collected. Both gaps are shown openly.</div>';
+
+  $('#wardOverview').innerHTML=WARDS.map(function(w){
+    return '<button class="w-ov-btn" data-ward="'+w.id+'"><div class="row"><span><b>'+w.name+'</b> · '+w.area+'</span><span class="badge '+w.status+'">'+STATUS_LBL[w.status]+'</span></div><div class="bar '+(w.status==='ok'?'green':'amber')+'"><i data-w="'+Math.round(w.ratio*100)+'"></i></div></button>';
+  }).join('');
+
+  var nodes=[['source','Source'],['reservoir','Reservoir'],['city','Wards'],['waste','Sewers'],['plant','STP'],['reuse','Reuse']];
+  $('#miniJourney').innerHTML=nodes.map(function(n,i){
+    return '<div class="mini-step"><div class="c">'+ic(n[0])+'</div><span>'+n[1]+'</span><small>Step '+(i+1)+'</small></div>';
+  }).join('');
+}
+function fillBars(root){
+  var els=$$('[data-w]',root);
+  els.forEach(function(b){b.style.width='0'});
+  requestAnimationFrame(function(){requestAnimationFrame(function(){els.forEach(function(b){b.style.width=b.getAttribute('data-w')+'%'})})});
+}
+function animateHome(){var r=$('#screen-home');runCounts(r);fillBars(r)}
+
+/* ---------- Wards ---------- */
+var wardFilter='all';
+function buildFilters(){
+  var f=[['all','All'],['ok','Normal'],['watch','Watch'],['attn','Needs attention']];
+  $('#wardFilters').innerHTML=f.map(function(x){return '<button class="chip'+(x[0]===wardFilter?' active':'')+'" data-f="'+x[0]+'" aria-pressed="'+(x[0]===wardFilter)+'">'+x[1]+'</button>'}).join('');
+}
+function renderWards(){
+  var q=$('#wardSearch').value.trim().toLowerCase();
+  var list=WARDS.filter(function(w){
+    var m=!q||(w.name+' '+w.area+' '+STATUS_LBL[w.status]).toLowerCase().indexOf(q)>-1;
+    return m&&(wardFilter==='all'||w.status===wardFilter);
+  });
+  $('#wardList').innerHTML=list.map(function(w,i){
+    return '<button class="card ward enter" style="--i:'+Math.min(i,8)+'" data-ward="'+w.id+'" aria-label="Open details for '+w.name+', '+w.area+'">'+
+      '<div class="top"><div><h4>'+w.name+'</h4><div class="area">'+w.area+'</div></div><span class="badge '+w.status+'">'+STATUS_LBL[w.status]+'</span></div>'+
+      '<div class="nums"><div><span>Supplied</span><b>'+mld(w.supplied)+' MLD</b></div><div><span>Collected</span><b>'+mld(w.waste)+' MLD</b></div></div>'+
+      '<div class="row"><span style="color:var(--muted);font-size:.76rem">Collected / supplied</span><b>'+Math.round(w.ratio*100)+'%</b></div>'+
+      '<div class="bar '+(w.status==='ok'?'green':'amber')+'"><i data-w="'+Math.round(w.ratio*100)+'"></i></div></button>';
+  }).join('');
+  $('#wardEmpty').hidden=list.length>0;
+  fillBars($('#wardList'));
+}
+function dropsHTML(l){
+  var g=gal(l), groups=Math.floor(g/100000), rem=g-groups*100000, out='';
+  var shown=Math.min(groups,40);
+  for(var i=0;i<shown;i++)out+=DROP_SVG.replace('<svg','<svg style="animation-delay:'+(i*20)+'ms"');
+  return '<div class="drops" role="img" aria-label="'+groups+' droplet groups">'+out+'</div><div class="hint">'+groups+' groups × 100,000 gal'+(rem>0?' + '+Math.round(rem).toLocaleString('en-IN')+' gal':'')+' = '+Math.round(g).toLocaleString('en-IN')+' US gal</div>';
+}
+
+/* ---------- Modal ---------- */
+var lastFocus=null;
+function openSheet(html){
+  lastFocus=document.activeElement;
+  $('#sheet').innerHTML=html;
+  $('#overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  var c=$('#sheet .close');if(c)c.focus();
+}
+function closeSheet(){
+  $('#overlay').classList.remove('open');
+  document.body.style.overflow='';
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+function sheetHead(title,sub){
+  return '<div class="sheet-head"><div><h3 id="sheetTitle" style="font-size:1.22rem">'+title+'</h3>'+(sub?'<div style="margin-top:4px">'+sub+'</div>':'')+'</div><button class="close" aria-label="Close" data-close>'+ic('x')+'</button></div>';
+}
+function openWard(id){
+  var w=WARDS.filter(function(x){return x.id==id})[0];if(!w)return;
+  var diff=w.supplied-w.waste;
+  openSheet(sheetHead(w.name+' · '+w.area,'<span class="badge '+w.status+'">'+STATUS_LBL[w.status]+'</span> <span class="badge demo">Demo Data</span>')+
+    '<div class="kv"><div><span>Water supplied</span><b>'+mld(w.supplied)+' MLD</b></div><div><span>Collected</span><b>'+mld(w.waste)+' MLD</b></div>'+
+    '<div><span>Collected / supplied</span><b>'+Math.round(w.ratio*100)+'%</b></div><div><span>Not collected</span><b>'+mld(diff)+' MLD</b></div>'+
+    '<div><span>Supplied (litres)</span><b>'+fmtL(w.supplied)+'</b></div><div><span>Share of supply</span><b>'+Math.round(w.supplied/D.distributed*100)+'%</b></div></div>'+
+    '<h4 style="margin-top:14px;font-size:.92rem">Water supplied, in droplets</h4>'+dropsHTML(w.supplied)+
+    '<h4 style="margin-top:14px;font-size:.92rem">Wastewater collected, in droplets</h4>'+dropsHTML(w.waste)+
+    '<div class="note"><b>Ward note (demo):</b> '+esc(w.note)+'</div>'+
+    '<div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px"><button class="btn primary" data-complain="'+w.id+'">File a complaint for this ward</button><button class="btn light" data-close>Close</button></div>');
+}
+document.addEventListener('click',function(e){
+  var w=e.target.closest('[data-ward]');if(w){openWard(w.getAttribute('data-ward'));return}
+  if(e.target.closest('[data-close]')||e.target===$('#overlay')){closeSheet();return}
+  var c=e.target.closest('[data-complain]');
+  if(c){var id=c.getAttribute('data-complain');closeSheet();go('profile');$('#cWard').value=id;setTimeout(function(){$('#cName').focus({preventScroll:true})},350)}
+  var f=e.target.closest('[data-f]');
+  if(f){wardFilter=f.getAttribute('data-f');buildFilters();renderWards()}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&$('#overlay').classList.contains('open'))closeSheet()});
+$('#wardSearch').addEventListener('input',renderWards);
+
+/* ---------- Journey ---------- */
+var STAGES=[
+  {k:'source',t:'Water Source',s:'Intake',ic:'source',v:D.received,
+   d:'Raw water enters the system from the source (canal and tubewell mix in this demo). Intake is measured at the head works.',
+   kv:[['Water received',mld(D.received)+' MLD'],['Litres',fmtL(D.received)],['Droplet groups',Math.round(gal(D.received)/100000).toLocaleString('en-IN')]]},
+  {k:'reservoir',t:'Reservoir',s:'Storage & dispatch',ic:'reservoir',v:D.distributed,
+   d:'Water is stored, treated for drinking and dispatched to wards. In this demo '+mld(D.notDelivered)+' MLD does not reach wards due to leakage, storage change and unmetered use.',
+   kv:[['Received',mld(D.received)+' MLD'],['Dispatched',mld(D.distributed)+' MLD'],['Not delivered',mld(D.notDelivered)+' MLD']]},
+  {k:'city',t:'City Wards',s:'8 demo wards',ic:'city',v:D.distributed,
+   d:'Households, shops and institutions use the water. Ward-level supply is metered or estimated. Open the Wards tab to compare them.',
+   kv:[['Supplied to wards',mld(D.distributed)+' MLD'],['Wards',String(WARDS.length)],['Needs attention',String(WARDS.filter(function(w){return w.status==='attn'}).length)]]},
+  {k:'waste',t:'Wastewater Collection',s:'Sewers & pumping',ic:'waste',v:D.collected,waste:true,
+   d:'Used water flows into sewers and is pumped to the plant. Only part of supplied water returns: some is used for gardens, evaporates or goes to septic tanks.',
+   kv:[['Collected',mld(D.collected)+' MLD'],['Share of supply',Math.round(D.collected/D.distributed*100)+'%'],['Not collected',mld(D.notCollected)+' MLD']]},
+  {k:'plant',t:'STP',s:'Sewage Treatment Plant',ic:'plant',v:D.collected,waste:true,
+   d:'The plant screens, settles, biologically treats and disinfects the wastewater. Outputs are measured separately: treated water, residual waste and an unexplained difference.',
+   kv:[['Received',mld(D.collected)+' MLD'],['Treated',mld(D.treated)+' MLD'],['Residual waste',mld(D.residual)+' MLD'],['Unexplained',mld(D.unexplained)+' MLD']]},
+  {k:'out',t:'Treated · Reuse · Residual',s:'Outputs',ic:'reuse',v:D.treated,treated:true,
+   d:'Treated water is reused or released safely. Residual waste (sludge, screenings, grit) is handled separately from the unexplained measurement gap.',
+   kv:[['Treated water',mld(D.treated)+' MLD'],['Reused',mld(D.reused)+' MLD'],['Residual waste',mld(D.residual)+' MLD'],['Released',mld(D.discharged)+' MLD']],
+   outs:true}
+];
+var jActive=0,jTimer=null,jPlaying=false;
+function renderJourney(){
+  var h='';
+  STAGES.forEach(function(s,i){
+    if(i){h+='<div class="pipe'+(STAGES[i].waste||STAGES[i-1].waste&&i>3?' waste':'')+'" data-p="'+i+'" aria-hidden="true"><i></i><i></i><i></i></div>'}
+    h+='<button class="stage'+(s.treated?' treated':'')+'" data-stage="'+i+'" aria-label="Stage '+(i+1)+': '+s.t+'"><span class="num">'+(i+1)+'</span><span class="sic">'+ic(s.ic)+'</span><span><b>'+s.t+'</b><small>'+s.s+'</small></span></button>';
+  });
+  $('#flow').innerHTML=h;
+  setStage(jActive,false);
+}
+function setStage(i,anim){
+  jActive=i;
+  $$('.stage').forEach(function(el,n){el.classList.toggle('active',n===i);el.classList.toggle('done',n<i);el.setAttribute('aria-pressed',n===i)});
+  $$('.pipe').forEach(function(el){el.classList.toggle('flowing',parseInt(el.getAttribute('data-p'))<=i)});
+  $('#flow').classList.toggle('paused',!jPlaying);
+  $('#jProg').textContent='Stage '+(i+1)+' of '+STAGES.length;
+  var s=STAGES[i],p=$('#jPanel');
+  var outs=s.outs?'<div class="outs"><div class="out g"><span>Treated water</span><span>'+mld(D.treated)+' MLD</span></div><div class="out b"><span>Reused (of treated)</span><span>'+mld(D.reused)+' MLD</span></div><div class="out a"><span>Residual waste</span><span>'+mld(D.residual)+' MLD</span></div></div>':'';
+  p.innerHTML='<span class="tag">Stage '+(i+1)+' · '+s.s+'</span><h3>'+s.t+'</h3><p>'+s.d+'</p><div class="kv">'+s.kv.map(function(x){return '<div><span>'+x[0]+'</span><b>'+x[1]+'</b></div>'}).join('')+'</div>'+outs;
+  if(anim!==false&&!reduce){p.classList.remove('swap');void p.offsetWidth;p.classList.add('swap')}
+  $('#jPlay').disabled=jPlaying;
+  $('#jPause').disabled=!jPlaying;
+}
+function jTick(){
+  if(jActive>=STAGES.length-1){jPause();toast('Journey complete. Tap Replay to watch again.');return}
+  setStage(jActive+1);
+}
+function jPlay(){
+  if(jPlaying)return;
+  if(jActive>=STAGES.length-1){setStage(0)}
+  jPlaying=true;setStage(jActive,false);
+  clearInterval(jTimer);jTimer=setInterval(jTick,3000);
+}
+function jPause(){jPlaying=false;clearInterval(jTimer);if(current==='journey')setStage(jActive,false)}
+function jReplay(){jPause();setStage(0);jPlay()}
+document.addEventListener('click',function(e){
+  var s=e.target.closest('[data-stage]');
+  if(s){
+    var wasPlaying=jPlaying;
+    if(wasPlaying){clearInterval(jTimer)}
+    setStage(parseInt(s.getAttribute('data-stage')));
+    if(wasPlaying){jTimer=setInterval(jTick,3000)}
+    var pn=$('#jPanel'),r=pn.getBoundingClientRect();
+    if(r.top>window.innerHeight*0.65||r.bottom>window.innerHeight-80){
+      pn.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+    }
+  }
+});
+$('#jPlay').addEventListener('click',jPlay);
+$('#jPause').addEventListener('click',jPause);
+$('#jReplay').addEventListener('click',jReplay);
+
+/* ---------- STP ---------- */
+function buildSTP(){
+  $('#stpStats').innerHTML=
+    statCard('waste','#B87A15','#FFF1D8','Received',D.collected,'Into the plant',0)+
+    statCard('plant','#13794B','#E3F6EC','Treated water',D.treated,Math.round(D.treated/D.collected*100)+'% of inflow',1)+
+    statCard('reuse','#168BDF','#E6F4FD','Reused water',D.reused,Math.round(D.reused/D.treated*100)+'% of treated',2)+
+    statCard('file','#8A5A0B','#FFF1D8','Residual waste',D.residual,'Sludge & grit',3);
+  var seg=[['Treated water',D.treated,'#20A66A'],['Residual waste',D.residual,'#E9A23B'],['Unexplained difference',D.unexplained,'#9AA9B8']];
+  var acc=0,stops=seg.map(function(x){var a=acc/D.collected*100;acc+=x[1];var b=acc/D.collected*100;return x[2]+' '+a+'% '+b+'%'}).join(',');
+  $('#stpDonut').style.background='conic-gradient('+stops+')';
+  $('#stpDonutLbl').innerHTML=mld(D.collected)+'<small>MLD received</small>';
+  $('#stpLegend').innerHTML=seg.map(function(x){return '<div><i style="background:'+x[2]+'"></i>'+x[0]+'<b>'+mld(x[1])+' MLD · '+(x[1]/D.collected*100).toFixed(1)+'%</b></div>'}).join('');
+  var steps=[['Screening','Removes plastics, cloth and large debris',96],['Primary settling','Heavy solids settle as sludge',62],['Biological treatment','Microbes digest dissolved organic matter',91],['Disinfection','Kills remaining germs before reuse or release',99]];
+  $('#stpSteps').innerHTML=steps.map(function(s,i){return '<div class="step"><div class="n">'+(i+1)+'</div><div style="flex:1;min-width:0"><div class="row" style="margin:0"><b>'+s[0]+'</b><span style="font-weight:800">'+s[2]+'%</span></div><small>'+s[1]+'</small><div class="bar green"><i data-w="'+s[2]+'"></i></div></div></div>'}).join('');
+  var max=28;
+  $('#stpChart').innerHTML=D.months.map(function(m,i){return '<div class="col"><div class="pair"><i style="background:var(--cyan)" data-h="'+(D.recv[i]/max*100)+'" title="Received '+D.recv[i]+' MLD"></i><i style="background:var(--green)" data-h="'+(D.trt[i]/max*100)+'" title="Treated '+D.trt[i]+' MLD"></i></div></div>'}).join('');
+  $('#stpX').innerHTML=D.months.map(function(m){return '<span>'+m+'</span>'}).join('');
+  var rmax=D.reuseSplit[0][1];
+  $('#reuseBars').innerHTML=D.reuseSplit.map(function(r){return balRow(r[0],'',r[1],rmax,'')}).join('')+
+    '<div class="note">Total reused: <b>'+mld(D.reused)+' MLD</b>. Remaining '+mld(D.discharged)+' MLD is released after meeting discharge norms (demo).</div>';
+}
+function animateSTP(){
+  var r=$('#screen-stp');runCounts(r);fillBars(r);
+  var hs=$$('[data-h]',r);hs.forEach(function(b){b.style.height='0'});
+  requestAnimationFrame(function(){requestAnimationFrame(function(){hs.forEach(function(b){b.style.height=b.getAttribute('data-h')+'%'})})});
+}
+
+/* ---------- Profile / role ---------- */
+var role='Citizen';
+try{role=localStorage.getItem('wss_role')||'Citizen'}catch(e){}
+function applyRole(){
+  var cit=role==='Citizen';
+  $('#roleBadge').textContent=role;
+  $('#profName').textContent=cit?'Demo Citizen':'Municipal Officer';
+  $('#profMeta').textContent=cit?'Resident · Ward 3 (demo)':'Sohna Water Dept (demo)';
+  $('#avatar').textContent=cit?'DC':'MO';
+  $('#roleHint').textContent=cit?'Citizens can view reports and log complaints about their ward.':'Municipality view adds complaint status controls (demo only).';
+  $$('.seg button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-role')===role)});
+  $('#cTitle').textContent=cit?'Your complaints':'Complaint inbox';
+  renderComplaints();
+}
+$$('.seg button').forEach(function(b){b.addEventListener('click',function(){
+  role=b.getAttribute('data-role');
+  try{localStorage.setItem('wss_role',role)}catch(e){}
+  applyRole();toast('Switched to '+role+' role');
+})});
+
+/* Complaints */
+var memComplaints=[];
+function loadC(){try{return JSON.parse(localStorage.getItem('wss_complaints')||'[]')}catch(e){return memComplaints}}
+function saveC(a){memComplaints=a;try{localStorage.setItem('wss_complaints',JSON.stringify(a))}catch(e){}}
+function renderComplaints(){
+  var a=loadC(),cit=role==='Citizen';
+  if(!a.length){$('#cList').innerHTML='<div class="empty" style="padding:14px 0">No complaints yet. Submit one above.</div>';return}
+  $('#cList').innerHTML=a.slice().reverse().map(function(c){
+    var st=c.status==='Reviewed'?'ok':'watch';
+    return '<div class="cmp"><div class="meta"><b>'+esc(c.id)+' · '+esc(c.category)+'</b><span class="badge '+st+'">'+esc(c.status)+'</span></div><div class="hint">'+esc(c.ward)+' · '+esc(c.name)+' · '+esc(c.date)+'</div><p>'+esc(c.desc)+'</p>'+
+      (!cit?'<button class="btn light sm" style="margin-top:8px" data-toggle="'+esc(c.id)+'">'+(c.status==='Reviewed'?'Mark as Open':'Mark as Reviewed')+'</button>':'')+'</div>';
+  }).join('');
+}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-toggle]');
+  if(t){var id=t.getAttribute('data-toggle'),a=loadC();a.forEach(function(c){if(c.id===id)c.status=c.status==='Reviewed'?'Open':'Reviewed'});saveC(a);renderComplaints();toast('Status updated')}
+});
+$('#cClear').addEventListener('click',function(){
+  if(!loadC().length){toast('Nothing to clear');return}
+  if(window.confirm('Delete all demo complaints stored in this browser?')){saveC([]);renderComplaints();$('#cConfirm').classList.remove('show');toast('Demo complaints cleared')}
+});
+$('#cForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var name=$('#cName').value.trim(),desc=$('#cDesc').value.trim();
+  $('#cName').classList.toggle('err',!name);$('#eName').classList.toggle('show',!name);
+  $('#cDesc').classList.toggle('err',desc.length<10);$('#eDesc').classList.toggle('show',desc.length<10);
+  if(!name||desc.length<10)return;
+  var a=loadC(),id='DEMO-'+String(a.length+101);
+  var wd=WARDS.filter(function(w){return w.id==$('#cWard').value})[0];
+  a.push({id:id,name:name,ward:wd.name+' · '+wd.area,category:$('#cCat').value,desc:desc,status:'Open',date:new Date().toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})});
+  saveC(a);
+  $('#cConfirm').innerHTML='<b>✔ Demo complaint recorded: '+id+'</b><br>Saved only in this browser.';
+  $('#cConfirm').classList.add('show');
+  $('#cForm').reset();renderComplaints();toast('Complaint '+id+' saved');
+});
+
+/* Reports */
+var REPORTS=[
+  {t:'Daily water balance',s:'Received, delivered, collected, treated',rows:function(){return [['Item','Litres','MLD'],['Water received',D.received],['Water distributed to wards',D.distributed],['Not delivered',D.notDelivered],['Wastewater collected',D.collected],['Not collected',D.notCollected],['Treated water',D.treated],['Reused water',D.reused],['Residual waste',D.residual],['Unexplained difference',D.unexplained]].map(function(r,i){return i?[r[0],r[1],mld(r[1])]:r})}},
+  {t:'Ward collection report',s:'Supplied vs collected by ward',rows:function(){return [['Ward','Area','Supplied (MLD)','Collected (MLD)','Collected %','Status']].concat(WARDS.map(function(w){return [w.name,w.area,mld(w.supplied),mld(w.waste),Math.round(w.ratio*100)+'%',STATUS_LBL[w.status]]}))}},
+  {t:'STP performance report',s:'Monthly received vs treated',rows:function(){return [['Month','Received (MLD)','Treated (MLD)','Treated %']].concat(D.months.map(function(m,i){return [m,D.recv[i],D.trt[i],(D.trt[i]/D.recv[i]*100).toFixed(1)+'%']}))}},
+  {t:'Water reuse report',s:'Where treated water is reused',rows:function(){return [['Use','Litres','MLD']].concat(D.reuseSplit.map(function(r){return [r[0],r[1],mld(r[1])]}))}}
+];
+function buildReports(){
+  $('#reportList').innerHTML=REPORTS.map(function(r,i){return '<div class="rep"><div class="ri">'+ic('file')+'</div><div><b>'+r.t+'</b><small>'+r.s+'</small></div><button class="btn light sm" data-rep="'+i+'">View</button></div>'}).join('');
+}
+function toCSV(rows){return rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(',')}).join('\r\n')}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-rep]');
+  if(b){
+    var r=REPORTS[parseInt(b.getAttribute('data-rep'))],rows=r.rows();
+    openSheet(sheetHead(r.t,'<span class="badge demo">Demo Data</span>')+
+      '<div class="tscroll"><table><thead><tr>'+rows[0].map(function(h){return '<th>'+esc(h)+'</th>'}).join('')+'</tr></thead><tbody>'+
+      rows.slice(1).map(function(row){return '<tr>'+row.map(function(c){return '<td>'+esc(typeof c==='number'?c.toLocaleString('en-IN'):c)+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>'+
+      '<div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px"><button class="btn primary" data-csv="'+b.getAttribute('data-rep')+'">Download CSV</button><button class="btn light" data-close>Close</button></div>');
+    return;
+  }
+  var d=e.target.closest('[data-csv]');
+  if(d){
+    var rp=REPORTS[parseInt(d.getAttribute('data-csv'))];
+    try{
+      var blob=new Blob(['\ufeff'+toCSV(rp.rows())],{type:'text/csv;charset=utf-8'});
+      var url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download='water-shield-sohna-'+rp.t.toLowerCase().replace(/[^a-z]+/g,'-')+'-DEMO.csv';
+      document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},500);
+      toast('CSV downloaded');
+    }catch(err){toast('Download not supported in this browser')}
+  }
+});
+
+/* ---------- Init ---------- */
+buildNav();buildHome();buildFilters();renderWards();buildSTP();buildReports();
+$('#cWard').innerHTML=WARDS.map(function(w){return '<option value="'+w.id+'"'+(w.id===3?' selected':'')+'>'+w.name+' · '+w.area+'</option>'}).join('');
+applyRole();
+var start=(location.hash||'').replace('#','');
+go(SCREENS.some(function(s){return s[0]===start})?start:'home');
+window.addEventListener('hashchange',function(){var h=location.hash.replace('#','');if(h&&h!==current&&SCREENS.some(function(s){return s[0]===h}))go(h)});
+document.addEventListener('visibilitychange',function(){if(document.hidden&&jPlaying)jPause()});
+})();
+</script>
+</body>
+</html>
